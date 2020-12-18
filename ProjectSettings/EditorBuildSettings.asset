@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/Herbie's Scene.unity
+    guid: 19f19ae7be1f6d841b226a1fb3a6a8ec
+  - enabled: 1
+    path: Assets/Scenes/Trent's Test Scene.unity
+    guid: d94db7025edd2704486e9baef1f0c483
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 91bb91985ddb64f4a901a3df97add5e2,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 512a0a3fe982c4e4d860fb6fc5e79ce0,
+      type: 2}
