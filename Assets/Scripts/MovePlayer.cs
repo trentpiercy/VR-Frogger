@@ -5,23 +5,20 @@ public class MovePlayer : MonoBehaviour
     public EnvironmentSetup environmentSetup;
     public Vector3 moveForce = new Vector3();
     public float forceCooldown;
-
-    new Rigidbody rigidbody;
-
-    float lastSnappedZ = 0f;
-
-    [HideInInspector]
-    public float forceCooldownTimer = 0f;
-
-    Vector3 originalPosition;
-    Quaternion originalRotation;
+    public AudioClip jumpSound;
+    public float jumpSoundPitch = 1;
 
     public delegate void CompletedLevelAction();
     public static event CompletedLevelAction OnLevelComplete;
 
+    new Rigidbody rigidbody;
+    float lastSnappedZ = 0f;
+    [HideInInspector]
+    public float forceCooldownTimer = 0f;
+    Vector3 originalPosition;
+    Quaternion originalRotation; 
     GameObject centerEyeAnchor;
     public GameObject playspace;
-
     Vector3 lastCenterEyePosition;
 
     private void Start()
@@ -120,6 +117,12 @@ public class MovePlayer : MonoBehaviour
             print("Applied force");
             rigidbody.AddForce(moveForce);
             forceCooldownTimer = forceCooldown; // set to 2s cooldown
+
+            // play move sound
+            AudioSource audioSource = GetComponent<AudioSource>();
+            audioSource.clip = jumpSound;
+            audioSource.pitch = jumpSoundPitch;
+            audioSource.Play();
         }
         else
         {

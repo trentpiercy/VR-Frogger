@@ -4,20 +4,36 @@ using UnityEngine;
 
 public class DetectCollision : MonoBehaviour
 {
+    public AudioClip collisionSound;
+    public float collisionSoundPitch = 0.75f;
+
     public delegate void CollisionAction();
     public static event CollisionAction OnCollisionEvent;
 
+    bool collisionActive = false;
+
     IEnumerator OnCollisionEnter(Collision collision)
     {
+        if (collisionActive)
+            yield break;
+
         if (collision.gameObject.tag == "Obstacle" && !PauseMenu.gameIsPaused)
         {
+            collisionActive = true;
             Debug.Log("Collided with obstacle!");
 
+            // play collision
+            AudioSource audioSource = GetComponent<AudioSource>();
+            audioSource.clip = collisionSound;
+            audioSource.pitch = collisionSoundPitch;
+            audioSource.Play();
+
             // seeing stuff collide is fun so wait for a second
-            yield return new WaitForSeconds(0f);
+            yield return new WaitForSeconds(.5f);
 
             // fire collision event to obstacles
             OnCollisionEvent?.Invoke();
+            collisionActive = false;
         }
     }
 

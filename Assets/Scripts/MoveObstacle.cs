@@ -44,11 +44,13 @@ public class MoveObstacle : MonoBehaviour
 
     void OnPause()
     {
+        GetComponent<AudioSource>().Pause();
         GetComponent<Rigidbody>().velocity = new Vector3();
     }
 
     void OnResume()
     {
+        GetComponent<AudioSource>().Play();
         GetComponent<Rigidbody>().velocity = velocity;
     }
 

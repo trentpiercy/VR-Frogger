@@ -35,7 +35,7 @@ public class PauseMenu : MonoBehaviour
 
         if (pauseTest)
         {
-            Pause();
+            ToggleMenu();
             pauseTest = false;
         }
     }
