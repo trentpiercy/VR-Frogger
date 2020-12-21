@@ -5,8 +5,10 @@ All documentation and help on [Notion](https://www.notion.so/VR-Frogger-75bd8b03
 
 Currently supports Oculus Quest and Oculus Quest 2.
 
+<img src="https://media.githubusercontent.com/media/trentpiercy/VR-Frogger/master/gameplay-short.gif" width="50%">
+
 ## Download
-Download APK from [latest release](https://github.com/trentpiercy/VR-Frogger/releases)
+Download APK from [latest release](https://github.com/trentpiercy/VR-Frogger/releases).
 
 ## Installing
 1. Connected to Quest with adb
