@@ -32,6 +32,10 @@ public class MoveObstacle : MonoBehaviour
         // subscribe to pause/resume
         PauseMenu.OnPauseEvent += OnPause;
         PauseMenu.OnResumeEvent += OnResume;
+
+
+        // move when loaded
+        OnResume();
     }
 
     void OnGameOver()
@@ -52,6 +56,14 @@ public class MoveObstacle : MonoBehaviour
     {
         GetComponent<AudioSource>().Play();
         GetComponent<Rigidbody>().velocity = velocity;
+    }
+
+    private void OnDestroy()
+    {
+        DetectCollision.OnCollisionEvent -= OnGameOver;
+        MovePlayer.OnLevelComplete -= OnGameOver;
+        PauseMenu.OnPauseEvent -= OnPause;
+        PauseMenu.OnResumeEvent -= OnResume;
     }
 
     // Update is called once per frame

@@ -2,7 +2,7 @@
 
 public class MovePlayer : MonoBehaviour
 {
-    public EnvironmentSetup environmentSetup;
+    EnvironmentSetup environmentSetup;
     public Vector3 moveForce = new Vector3();
     public float forceCooldown;
     public AudioClip jumpSound;
@@ -23,11 +23,6 @@ public class MovePlayer : MonoBehaviour
 
     private void Start()
     {
-        if (environmentSetup == null)
-        {
-            environmentSetup = FindObjectOfType<EnvironmentSetup>();
-        }
-
         if (playspace == null)
         {
             playspace = GameObject.Find("MixedRealityPlayspace");
@@ -79,17 +74,26 @@ public class MovePlayer : MonoBehaviour
 
     void FixedUpdate()
     {
-        // if moved far enough: snap
-        if (transform.position.z >= lastSnappedZ + 2)
+        if (!PauseMenu.gameIsPaused)
         {
-            print("Stopping cube");
-            rigidbody.velocity = new Vector3();
-            SetLastSnappedZ();
-        }
+            // if moved far enough: snap
+            if (transform.position.z >= lastSnappedZ + 2)
+            {
+                print("Stopping cube");
+                rigidbody.velocity = new Vector3();
+                SetLastSnappedZ();
+            }
 
-        // detect win level
-        if (transform.position.z > environmentSetup.boardLength) {
-            OnLevelComplete?.Invoke();
+            if (environmentSetup == null)
+            {
+                environmentSetup = FindObjectOfType<EnvironmentSetup>();
+            }
+
+            // detect win level
+            if (environmentSetup != null && transform.position.z > environmentSetup.boardLength)
+            {
+                OnLevelComplete?.Invoke();
+            }
         }
     }
 

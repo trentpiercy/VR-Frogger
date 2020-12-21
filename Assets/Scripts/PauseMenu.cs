@@ -1,16 +1,16 @@
 ﻿using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenu;
+    public GameObject mainMenu;
     public JumpDetection jumpDetection;
     public GameObject heightCalibratedText;
-    public GameObject calibrateWarnText;
 
-    public static bool gameIsPaused = false;
+    public static bool gameIsPaused = true;
     public delegate void PauseAction();
     public static event PauseAction OnPauseEvent;
     public delegate void ResumeAction();
@@ -25,8 +25,7 @@ public class PauseMenu : MonoBehaviour
             jumpDetection = FindObjectOfType<JumpDetection>();
         }
 
-        Pause();
-        calibrateWarnText.SetActive(true);
+        pauseMenu.SetActive(false);
         heightCalibratedText.SetActive(false);
     }
 
@@ -71,7 +70,6 @@ public class PauseMenu : MonoBehaviour
     public void CalibrateHeight()
     {
         jumpDetection.CalibrateHeight();
-        calibrateWarnText.SetActive(false);
         StartCoroutine(showCalibratedText());
     }
 
@@ -86,5 +84,14 @@ public class PauseMenu : MonoBehaviour
     {
         Resume();
         DetectCollision.InvokeCollisionEvent();
+    }
+
+    public void MainMenuButton()
+    {
+        SceneManager.UnloadSceneAsync(MainMenu.activeLevelIndex);
+        DetectCollision.InvokeCollisionEvent();
+        gameIsPaused = true;
+        mainMenu.SetActive(true);
+        pauseMenu.SetActive(false);
     }
 }

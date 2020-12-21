@@ -14,10 +14,12 @@ public class DetectCollision : MonoBehaviour
 
     IEnumerator OnCollisionEnter(Collision collision)
     {
-        if (collisionActive)
+        print("Collision detected");
+
+        if (collisionActive || PauseMenu.gameIsPaused)
             yield break;
 
-        if (collision.gameObject.tag == "Obstacle" && !PauseMenu.gameIsPaused)
+        if (collision.gameObject.tag == "Obstacle")
         {
             collisionActive = true;
             Debug.Log("Collided with obstacle!");
