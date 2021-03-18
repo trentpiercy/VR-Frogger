@@ -1,10 +1,13 @@
-﻿using UnityEngine;
+﻿using Microsoft.MixedReality.Toolkit.Input;
+using UnityEngine;
 
 public class MovePlayer : MonoBehaviour
 {
     EnvironmentSetup environmentSetup;
-    public Vector3 moveForce = new Vector3();
+
+    public float moveForce = 600;
     public float forceCooldown;
+
     public AudioClip jumpSound;
     public float jumpSoundPitch = 1;
 
@@ -13,8 +16,10 @@ public class MovePlayer : MonoBehaviour
 
     new Rigidbody rigidbody;
     float lastSnappedZ = 0f;
+
     [HideInInspector]
     public float forceCooldownTimer = 0f;
+
     Vector3 originalPosition;
     Quaternion originalRotation; 
     GameObject centerEyeAnchor;
@@ -47,7 +52,25 @@ public class MovePlayer : MonoBehaviour
         lastCenterEyePosition = centerEyeAnchor.transform.position;
     }
 
+    void OnGameOver()
+    {
+        rigidbody.velocity = new Vector3();
+        rigidbody.angularVelocity = new Vector3();
+
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+
+        //centerEyeAnchor.transform.position = new Vector3(cameraOriginalPosition.x, centerEyeAnchor.transform.position.y, cameraOriginalPosition.z);
+
+        lastSnappedZ = Mathf.Floor(originalPosition.z);
+    }
+
     private void Update()
+    {
+        SyncPlayerAndCamera();
+    }
+
+    private void SyncPlayerAndCamera()
     {
         // if camera moved, drag player with it if not under force
         if (centerEyeAnchor.transform.position != lastCenterEyePosition && forceCooldownTimer <= 0)
@@ -76,38 +99,38 @@ public class MovePlayer : MonoBehaviour
     {
         if (!PauseMenu.gameIsPaused)
         {
-            // if moved far enough: snap
-            if (transform.position.z >= lastSnappedZ + 2)
-            {
-                print("Stopping cube");
-                rigidbody.velocity = new Vector3();
-                SetLastSnappedZ();
-            }
-
-            if (environmentSetup == null)
-            {
-                environmentSetup = FindObjectOfType<EnvironmentSetup>();
-            }
-
-            // detect win level
-            if (environmentSetup != null && transform.position.z > environmentSetup.boardLength)
-            {
-                OnLevelComplete?.Invoke();
-            }
+            SnapPlayer1D();
+            DetectWin();
         }
     }
 
-    void OnGameOver()
+    private void SnapPlayer1D()
     {
-        rigidbody.velocity = new Vector3();
-        rigidbody.angularVelocity = new Vector3();
+        // if moved far enough: snap
+        if (transform.position.z >= lastSnappedZ + 2)
+        {
+            print("Stopping cube");
+            rigidbody.velocity = new Vector3();
+            SetLastSnappedZ();
+        }
+    }
 
-        transform.position = originalPosition;
-        transform.rotation = originalRotation;
+    private void DetectWin()
+    {
+        if (environmentSetup == null)
+        {
+            environmentSetup = FindObjectOfType<EnvironmentSetup>();
+        }
 
-        //centerEyeAnchor.transform.position = new Vector3(cameraOriginalPosition.x, centerEyeAnchor.transform.position.y, cameraOriginalPosition.z);
+        // detect win level
+        if (environmentSetup != null && transform.position.z > environmentSetup.boardLength)
+        {
+            OnLevelComplete?.Invoke();
+        }
+    }
 
-        lastSnappedZ = Mathf.Floor(originalPosition.z);
+    private void SnapPlayer4D()
+    {
     }
 
     public void MoveInput()
@@ -118,8 +141,8 @@ public class MovePlayer : MonoBehaviour
         print("Move input pressed");
         if (forceCooldownTimer <= 0)
         {
-            print("Applied force");
-            rigidbody.AddForce(moveForce);
+            print("Applying force");
+            rigidbody.AddForce(new Vector3(0, 0, moveForce));
             forceCooldownTimer = forceCooldown; // set to 2s cooldown
 
             // play move sound
@@ -146,5 +169,20 @@ public class MovePlayer : MonoBehaviour
 
         // if snapped, can apply force again
         forceCooldownTimer = 0f;
+    }
+
+    public void ToggleJumpWithTrigger()
+    {
+        InputActionHandler jumpHandler = GetComponent<InputActionHandler>();
+        if (jumpHandler.enabled)
+        {
+            // if active, turn off
+            print("Toggling off trigger jumping");
+            jumpHandler.enabled = false;
+        } else
+        {
+            print("Toggling on trigger jumping");
+            jumpHandler.enabled = true;
+        }
     }
 }

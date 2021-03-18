@@ -8,16 +8,6 @@ public class JumpDetection : MonoBehaviour
     MovePlayer movePlayer;
     public float jumpCooldown = 2f;
 
-    // velocity detection
-    double velocitySensitivity = 0.5;
-    Vector3 lastPosition;
-    Vector3 current_velocity;
-
-    // moving avg detection
-    int numberOfFramesForAverage = 72;
-    Queue<float> yQueue = new Queue<float>();
-    float averageY;
-    float ySensitivity = 0.2f;
     float jumpTimer = 0f;
 
     // height detection
@@ -33,10 +23,6 @@ public class JumpDetection : MonoBehaviour
         }
 
         centerEyeAnchor = GameObject.Find("CenterEyeAnchor");
-
-        lastPosition = centerEyeAnchor.transform.position;
-
-        averageY = centerEyeAnchor.transform.position.y;
     }
       
     void FixedUpdate()
@@ -44,56 +30,6 @@ public class JumpDetection : MonoBehaviour
         if (!PauseMenu.gameIsPaused) {
             //TranslationDetection();
             HeightDetection();
-        }
-    }
-
-    void VelocityDetection()
-    {
-        current_velocity = (centerEyeAnchor.transform.position - lastPosition) / Time.deltaTime;
-
-        if (current_velocity.y >= velocitySensitivity && movePlayer.forceCooldownTimer <= 0)
-        {
-            TriggerJump();
-        }
-
-        lastPosition = centerEyeAnchor.transform.position;
-    }
-
-    void MovingAverageDetection()
-    {
-        // average y over the last 72 physics frames = 1 sec
-        // if it changes by over amount -> fire jump
-
-        
-        // if full, remove and adjust
-        if (yQueue.Count > numberOfFramesForAverage)
-        {
-            float rem = yQueue.Dequeue();
-            averageY -= rem / numberOfFramesForAverage;
-        }
-
-        float currentY = centerEyeAnchor.transform.position.y;
-        float changeFromAvg = currentY - averageY;
-        // end timer if moving down
-        if (changeFromAvg < 0)
-        {
-            jumpTimer = 0;
-        }
-        // jump if positive change & no current force & no timer
-        else if (changeFromAvg > ySensitivity && movePlayer.forceCooldownTimer <= 0 && jumpTimer <= 0)
-        {
-            TriggerJump();
-        }
-
-        // add new y and adjust average
-        yQueue.Enqueue(currentY);
-        averageY += currentY / numberOfFramesForAverage;
-        print("Average Y: " + averageY);
-
-        // timer
-        if (jumpTimer > 0)
-        {
-            jumpTimer -= Time.deltaTime;
         }
     }
 
@@ -142,4 +78,66 @@ public class JumpDetection : MonoBehaviour
         movePlayer.MoveInput();
         jumpTimer = jumpCooldown;
     }
+
+    /* =========== OLD JUMP DETECTION =============
+    
+    // velocity detection
+    double velocitySensitivity = 0.5;
+    Vector3 lastPosition;
+    Vector3 current_velocity;
+    void VelocityDetection()
+    {
+        current_velocity = (centerEyeAnchor.transform.position - lastPosition) / Time.deltaTime;
+
+        if (current_velocity.y >= velocitySensitivity && movePlayer.forceCooldownTimer <= 0)
+        {
+            TriggerJump();
+        }
+
+        lastPosition = centerEyeAnchor.transform.position;
+    }
+
+    // moving avg detection
+    int numberOfFramesForAverage = 72;
+    Queue<float> yQueue = new Queue<float>();
+    float averageY;
+    float ySensitivity = 0.2f;
+    void MovingAverageDetection()
+    {
+        // average y over the last 72 physics frames = 1 sec
+        // if it changes by over amount -> fire jump
+
+        
+        // if full, remove and adjust
+        if (yQueue.Count > numberOfFramesForAverage)
+        {
+            float rem = yQueue.Dequeue();
+            averageY -= rem / numberOfFramesForAverage;
+        }
+
+        float currentY = centerEyeAnchor.transform.position.y;
+        float changeFromAvg = currentY - averageY;
+        // end timer if moving down
+        if (changeFromAvg < 0)
+        {
+            jumpTimer = 0;
+        }
+        // jump if positive change & no current force & no timer
+        else if (changeFromAvg > ySensitivity && movePlayer.forceCooldownTimer <= 0 && jumpTimer <= 0)
+        {
+            TriggerJump();
+        }
+
+        // add new y and adjust average
+        yQueue.Enqueue(currentY);
+        averageY += currentY / numberOfFramesForAverage;
+        print("Average Y: " + averageY);
+
+        // timer
+        if (jumpTimer > 0)
+        {
+            jumpTimer -= Time.deltaTime;
+        }
+    }
+     */
 }
