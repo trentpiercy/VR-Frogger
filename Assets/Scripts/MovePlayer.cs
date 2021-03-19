@@ -7,6 +7,7 @@ public class MovePlayer : MonoBehaviour
 
     public float moveForce = 600;
     public float forceCooldown;
+    public bool fourD = true;
 
     public AudioClip jumpSound;
     public float jumpSoundPitch = 1;
@@ -15,7 +16,7 @@ public class MovePlayer : MonoBehaviour
     public static event CompletedLevelAction OnLevelComplete;
 
     new Rigidbody rigidbody;
-    float lastSnappedZ = 0f;
+    Vector3 lastSnapped;
 
     [HideInInspector]
     public float forceCooldownTimer = 0f;
@@ -45,11 +46,10 @@ public class MovePlayer : MonoBehaviour
         originalPosition = transform.position;
         originalRotation = transform.rotation;
 
-        lastSnappedZ = Mathf.Floor(originalPosition.z);
-
         centerEyeAnchor.transform.position = new Vector3(centerEyeAnchor.transform.position.x, centerEyeAnchor.transform.position.y, centerEyeAnchor.transform.position.z + 0.2f);
-        //cameraOriginalPosition = centerEyeAnchor.transform.position;
         lastCenterEyePosition = centerEyeAnchor.transform.position;
+
+        SetLastSnapped();
     }
 
     void OnGameOver()
@@ -60,9 +60,7 @@ public class MovePlayer : MonoBehaviour
         transform.position = originalPosition;
         transform.rotation = originalRotation;
 
-        //centerEyeAnchor.transform.position = new Vector3(cameraOriginalPosition.x, centerEyeAnchor.transform.position.y, cameraOriginalPosition.z);
-
-        lastSnappedZ = Mathf.Floor(originalPosition.z);
+        SetLastSnapped();
     }
 
     private void Update()
@@ -99,19 +97,24 @@ public class MovePlayer : MonoBehaviour
     {
         if (!PauseMenu.gameIsPaused)
         {
-            SnapPlayer1D();
+            SnapPlayer();
             DetectWin();
         }
     }
 
-    private void SnapPlayer1D()
+    private void SnapPlayer()
     {
+        // Snap player to 2x2 grid
+        Vector3 floorPosition = new Vector3(transform.position.x, 0, transform.position.z);
+        float changeX = Mathf.Abs(floorPosition.x - lastSnapped.x);
+        float changeZ = Mathf.Abs(floorPosition.z - lastSnapped.z);
+
         // if moved far enough: snap
-        if (transform.position.z >= lastSnappedZ + 2)
+        if (changeX >= 2 || changeZ >= 2)
         {
             print("Stopping cube");
             rigidbody.velocity = new Vector3();
-            SetLastSnappedZ();
+            SetLastSnapped();
         }
     }
 
@@ -129,10 +132,6 @@ public class MovePlayer : MonoBehaviour
         }
     }
 
-    private void SnapPlayer4D()
-    {
-    }
-
     public void MoveInput()
     {
         if (PauseMenu.gameIsPaused)
@@ -142,7 +141,44 @@ public class MovePlayer : MonoBehaviour
         if (forceCooldownTimer <= 0)
         {
             print("Applying force");
-            rigidbody.AddForce(new Vector3(0, 0, moveForce));
+            if (fourD)
+            {
+                Vector3 forward = centerEyeAnchor.transform.forward;
+                forward.y = 0;
+                float heading = Quaternion.LookRotation(forward).eulerAngles.y;
+                print(heading);
+                /*
+                0: positive z
+                > 315, < 45 
+
+                90: positive x
+                > 45, < 135
+
+                180: negative z
+                > 135, < 225
+
+                270: negative x
+                > 225, < 315
+                */
+
+                if (heading >= 315 || heading <= 45)
+                {
+                    rigidbody.AddForce(new Vector3(0, 0, moveForce)); // + z
+                } else if (heading >= 45 && heading <= 135)
+                {
+                    rigidbody.AddForce(new Vector3(moveForce, 0, 0)); // + x
+                } else if (heading >= 135 && heading <= 225)
+                {
+                    rigidbody.AddForce(new Vector3(0, 0, -moveForce)); // - z
+                } else if (heading >= 225 && heading <= 315)
+                {
+                    rigidbody.AddForce(new Vector3(-moveForce, 0, 0)); // - x
+                }
+            } else
+            {
+                rigidbody.AddForce(new Vector3(0, 0, moveForce));
+            }
+
             forceCooldownTimer = forceCooldown; // set to 2s cooldown
 
             // play move sound
@@ -157,15 +193,36 @@ public class MovePlayer : MonoBehaviour
         }
     }
 
-    void SetLastSnappedZ()
+    void SetLastSnapped()
     {
-        lastSnappedZ = Mathf.Floor(transform.position.z);
-        if (lastSnappedZ % 2 != 0)
+        float x = Mathf.Floor(transform.position.x);
+        float z = Mathf.Floor(transform.position.z);
+
+        if (x % 2 != 0)
         {
-            lastSnappedZ -= 1;
+            if (x > lastSnapped.x)
+            {
+                x--;
+            }
+            else
+            {
+                x++;
+            }
         }
 
-        print("Last snapped set to " + lastSnappedZ.ToString());
+        if (z % 2 != 0) {
+            if (z > lastSnapped.z)
+            {
+                z--;
+            }
+            else
+            {
+                z++;
+            }
+        }
+
+        lastSnapped = new Vector3(x, 0, z);
+        print("Last snapped set to " + lastSnapped);
 
         // if snapped, can apply force again
         forceCooldownTimer = 0f;
@@ -184,5 +241,10 @@ public class MovePlayer : MonoBehaviour
             print("Toggling on trigger jumping");
             jumpHandler.enabled = true;
         }
+    }
+
+    public void Toggle4D()
+    {
+        fourD = !fourD;
     }
 }
