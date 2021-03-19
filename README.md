@@ -1,7 +1,7 @@
 # VR-Frogger
 VR-Frogger is a 3D recreation of Frogger/Crossy Road for VR built with Unity. The user physically jumps in order to move forward in the game.
 
-All documentation and help on [Notion](https://www.notion.so/VR-Frogger-75bd8b0368804ff2b5edcbf4a6b99b3f).
+All [documentation](https://www.notion.so/Technical-Documentation-a90a177134a24637acc34157b842935b) and [help](https://www.notion.so/How-to-play-946a36b25d5b4810b26f726479083e5b) on [Notion](https://www.notion.so/VR-Frogger-75bd8b0368804ff2b5edcbf4a6b99b3f).
 
 Currently supports Oculus Quest and Oculus Quest 2.
 
