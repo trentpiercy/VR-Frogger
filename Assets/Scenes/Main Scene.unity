@@ -33123,7 +33123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpCooldown: 2
-  heightChangeTrigger: 0.1
+  heightChangeTrigger: 0.07
   headHeight: 100
 --- !u!114 &7877224772592851129
 MonoBehaviour:

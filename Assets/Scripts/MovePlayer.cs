@@ -1,5 +1,6 @@
 ﻿using Microsoft.MixedReality.Toolkit.Input;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MovePlayer : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class MovePlayer : MonoBehaviour
         }
 
         DetectCollision.OnCollisionEvent += OnGameOver;
-        OnLevelComplete += OnGameOver;
+        OnLevelComplete += LevelComplete;
 
         //cameraRig = FindObjectOfType<OVRCameraRig>();
         centerEyeAnchor = GameObject.Find("CenterEyeAnchor");
@@ -56,11 +57,25 @@ public class MovePlayer : MonoBehaviour
     {
         rigidbody.velocity = new Vector3();
         rigidbody.angularVelocity = new Vector3();
-
         transform.position = originalPosition;
         transform.rotation = originalRotation;
 
         SetLastSnapped();
+    }
+
+    void LevelComplete()
+    {
+        OnGameOver();
+        MainMenu mainMenu = FindObjectOfType<MainMenu>();
+        PauseMenu pauseMenu = FindObjectOfType<PauseMenu>();
+
+        pauseMenu.MainMenuButton();
+
+        int nextLevelIndex = MainMenu.activeLevelIndex;
+        nextLevelIndex++;
+
+        if (nextLevelIndex <= 3) // hard coding 3 levels here
+            mainMenu.LoadLevel(nextLevelIndex);
     }
 
     private void Update()
